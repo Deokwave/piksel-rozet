@@ -1,6 +1,6 @@
 <?php
 // Piksel tarzı SVG rozet üretir.
-// Tarayıcıda: rozet.php?yazi=WEBGPU&renk=7c4ddb
+// Tarayıcıda: rozet.php?yazi=WEBGPU&renk=7c4ddb&olcek=3
 // Komut satırında: php rozet.php yazi=WEBGPU renk=7c4ddb > rozet.svg
 
 const HARFLER = [
@@ -83,7 +83,7 @@ function glif(string $harf): array
     return $satirlar;
 }
 
-function rozet(string $yazi, string $renk): string
+function rozet(string $yazi, string $renk, int $olcek = 3): string
 {
     $yazi = mb_strtoupper(str_replace(['i', 'ı'], ['İ', 'I'], $yazi), 'UTF-8');
     $harfler = mb_str_split($yazi, 1, 'UTF-8');
@@ -111,12 +111,13 @@ function rozet(string $yazi, string $renk): string
     $kare = sprintf('<rect x="4" y="5" width="3" height="3" fill="#%s"/>', $renk);
     return sprintf(
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %1$d %2$d" width="%3$d" height="%4$d" shape-rendering="crispEdges">%5$s%6$s%7$s<g fill="#f1eaff">%8$s</g></svg>',
-        $w, $h, $w * 3, $h * 3, $kenar, $ic, $kare, implode('', $parca)
+        $w, $h, $w * $olcek, $h * $olcek, $kenar, $ic, $kare, implode('', $parca)
     );
 }
 
 if (PHP_SAPI === 'cli') parse_str(implode('&', array_slice($argv, 1)), $_GET);
 $yazi = trim((string)($_GET['yazi'] ?? 'DEOKWAVE')) ?: 'DEOKWAVE';
 $renk = preg_match('/^[0-9a-fA-F]{6}$/', (string)($_GET['renk'] ?? '')) ? $_GET['renk'] : '7c4ddb';
+$olcek = max(1, min(8, (int)($_GET['olcek'] ?? 3)));
 if (PHP_SAPI !== 'cli') header('Content-Type: image/svg+xml; charset=utf-8');
-echo rozet(mb_substr($yazi, 0, 24), $renk);
+echo rozet(mb_substr($yazi, 0, 24), $renk, $olcek);
